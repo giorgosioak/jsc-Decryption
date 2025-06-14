@@ -124,28 +124,20 @@ def readJscFile(path):
     return data
 
 
-def saveFile(fileDir, outData):
+def saveFile(filePath, outData):
     """
     保存解密文件
 
-    :param fileDir: 文件目录
+    :param filePath: 文件路径
     :param outData: 保存数据
     :return: None
     """
-    rootPath = os.path.split(fileDir)[0]
-    try:
-        os.makedirs(rootPath)
-    except OSError:
-        if not os.path.exists(rootPath):
-            raise Exception("Error: create directory %s failed." % rootPath)
-    if fileDir.endswith("c"):
-        file = fileDir[:-1]
 
     if isinstance(outData, str):  # 判断数据类型 以防utf8转码失败的文件无法保存
-        with open(file, "w", encoding="utf-8") as fd:
+        with open(filePath, "w", encoding="utf-8") as fd:
             fd.write(outData)
     else:
-        with open(file, "wb") as fd:
+        with open(filePath, "wb") as fd:
             fd.write(outData)
     fd.close()
 
@@ -193,9 +185,9 @@ def batchDecrypt(srcDir, xxteaKey):
     if not os.path.exists(srcDir):
         ColorPrinter.print_white_text("Error:FileNotFound")
         exit(1)
-    rootDir = os.path.split(srcDir)[0]
-    outDir = rootDir
-    outDir = os.path.join(rootDir, "out")
+    # rootDir = os.path.split(srcDir)[0]
+    # outDir = rootDir
+    # outDir = os.path.join(rootDir, "out") ( rename resources path to outresources)
     if os.path.isfile(srcDir):
         filesPathArr = [srcDir]
     elif os.path.isdir(srcDir):
@@ -205,11 +197,11 @@ def batchDecrypt(srcDir, xxteaKey):
         exit(-1)
 
     for filePath in filesPathArr:
-        ColorPrinter.print_green_text("Decrypting flie:{0}".format(filePath))
+        ColorPrinter.print_green_text("Decrypting file:{0}".format(filePath))
         decType, decData = decrypt(filePath=filePath, key=xxteaKey)
-        outFile = outDir + filePath[len(rootDir + os.path.split(srcDir)[1]) + 1:]
-        saveFile(fileDir=outFile, outData=decData)
-        print("        Save flie:{0}".format(outFile))
+        outFile = filePath[:-1] # from .jsc to .js
+        saveFile(filePath=outFile, outData=decData)
+        print("        Save file:{0}".format(outFile))
 
 
 def encrypt():
